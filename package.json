@@ -1,0 +1,27 @@
+{
+  "name": "typescript-model-",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "pretest": "tsd install && tsc",
+    "test": "node ./node_modules/karma/bin/karma start --reporters progress,coverage --single-run",
+    "coveralls": "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.3"
+  },
+  "devDependencies": {
+    "coveralls": "^2.11.9",
+    "es6-module-loader": "^0.17.11",
+    "jasmine-core": "^2.4.1",
+    "karma": "^0.13.22",
+    "karma-coverage": "^0.5.5",
+    "karma-jasmine": "^0.3.8",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "karma-systemjs": "^0.13.0",
+    "phantomjs-prebuilt": "^2.1.6",
+    "systemjs": "^0.19.24",
+    "typescript": "^1.8.9",
+    "typings": "^0.7.9"
+  }
+}
