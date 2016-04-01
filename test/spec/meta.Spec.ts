@@ -4,7 +4,7 @@ import {createMeta, Meta} from "../../lib/meta";
  */
 
 
-describe('Model::Property::Meta', function() {
+describe('Model::Meta', function() {
 
     it('should create a new Meta interface', function () {
         let titleKey = 'title';

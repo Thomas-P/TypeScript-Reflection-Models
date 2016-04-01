@@ -30,12 +30,12 @@ build/Release
 node_modules
 
 # TypeScript converts
-lib/*.js
-lib/*.map
+lib/**/*.js
+lib/**/*.map
 
 # Test
-test/spec/*.js
-test/spec/*.map
+test/**/*.js
+test/**/*.map
 
 #Typings
 typings

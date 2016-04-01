@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
-    "pretest": "tsd install && tsc",
+    "pretest": "tsc",
     "test": "node ./node_modules/karma/bin/karma start --reporters progress,coverage --single-run",
     "coveralls": "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
