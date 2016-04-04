@@ -2,7 +2,9 @@
  * Created by ThomasP on 01.04.2016.
  */
 
-
+function assertString(prop):boolean {
+    return typeof prop === 'string' || prop instanceof String;
+}
 /**
  *
  */
@@ -36,7 +38,7 @@ export interface IValidationObject<T> {
  * @returns {boolean}
  */
 export function assertIValidationObject<T>(property:IValidationObject<T>):boolean {
-    return typeof property.validatorName === 'string' &&
+    return typeof assertString(property.validatorName) &&
         assertIValidatorFunction(property.validatorFunction);
 }
 
@@ -57,8 +59,6 @@ export interface IValidationProperty<T> extends IValidationObject<T> {
  */
 export function assertIValidationProperty<T>(property:IValidationProperty<T>):boolean {
     return assertIValidationObject(property) &&
-
-        typeof property.errorNotice === 'string' &&
-
-        typeof property.propertyName === 'string';
+        assertString(property.errorNotice) &&
+        assertString(property.propertyName);
 }
