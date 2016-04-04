@@ -124,16 +124,17 @@ describe('Model::Property::Validation', function() {
         }
         let m = new M;
         let validatorInterface = new Validation(m);
-
+        
         expect(validatorInterface.isValidProperty('prop1')).toBe(false);
         expect(validatorInterface.isValidProperty('prop2')).toBe(true);
+        
         m.prop1 = 10;
         m.prop2 = 10;
         expect(validatorInterface.isValidProperty('prop1')).toBe(false);
         expect(validatorInterface.isValidProperty('prop2')).toBe(false);
+        
         m.prop1 = -10;
         m.prop2 = -10;
-
         expect(validatorInterface.isValidProperty('prop1')).toBe(true);
         expect(validatorInterface.isValidProperty('prop2')).toBe(true);
 
@@ -356,7 +357,7 @@ describe('Model::Property::Validation', function() {
         result = new Validation(m).getErrors();
         expect(result).toBeDefined();
         expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(1);
+        expect(result.length).toBe(2);
         result.forEach((resItem:IValidationProperty<any>) => {
             // these one have no base Value or error notice
             switch (resItem.propertyName) {
@@ -410,7 +411,7 @@ describe('Model::Property::Validation', function() {
         result = new Validation(m2).getErrors();
         expect(result).toBeDefined();
         expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(1);
+        expect(result.length).toBe(2);
         result.forEach((resItem:IValidationProperty<any>) => {
             // these one have no base Value or error notice
             switch (resItem.validatorName) {
@@ -453,7 +454,7 @@ describe('Model::Property::Validation', function() {
             expect(resItem.baseValue).toBe(5);
         });
 
-        result = new Validation(m).getPropertyErrors('prop2');
+        result = new Validation(m).getPropertyErrors('prop1');
         expect(result).toBeDefined();
         expect(Array.isArray(result)).toBe(true);
         expect(result.length).toBe(1);
@@ -468,26 +469,14 @@ describe('Model::Property::Validation', function() {
         result = Validation.getPropertyErrors(m, 'prop2');
         expect(result).toBeDefined();
         expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(1);
-        result.forEach((resItem:IValidationProperty<any>) => {
-            // these one have no base Value or error notice
-            expect(resItem.validatorName).toBe('higherThen');
-            expect(typeof resItem.validatorFunction).toBe('function');
-            expect(resItem.propertyName).toBe('prop1');
-            expect(resItem.baseValue).toBe(5);
-        });
+        expect(result.length).toBe(0);
+
 
         result = new Validation(m).getPropertyErrors('prop2');
         expect(result).toBeDefined();
         expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(1);
-        result.forEach((resItem:IValidationProperty<any>) => {
-            // these one have no base Value or error notice
-            expect(resItem.validatorName).toBe('higherThen');
-            expect(typeof resItem.validatorFunction).toBe('function');
-            expect(resItem.propertyName).toBe('prop1');
-            expect(resItem.baseValue).toBe(5);
-        });
+        expect(result.length).toBe(0);
+
 
         class M2 {
             // do not check if something is not possible
@@ -522,7 +511,7 @@ describe('Model::Property::Validation', function() {
         result = new Validation(m2).getPropertyErrors('prop2prop');
         expect(result).toBeDefined();
         expect(Array.isArray(result)).toBe(true);
-        expect(result.length).toBe(1);
+        expect(result.length).toBe(2);
         result.forEach((resItem:IValidationProperty<any>) => {
             // these one have no base Value or error notice
             switch (resItem.validatorName) {
