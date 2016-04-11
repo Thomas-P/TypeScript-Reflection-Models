@@ -1,7 +1,10 @@
 /**
  * Created by ThomasP on 27.03.2016.
  */
-import {IValidationObject, IValidatorFunction, IValidationProperty} from "./validation/interfaces";
+import {
+    IValidationObject, IValidatorFunction, IValidationProperty,
+    IValidatorAgainstFunction
+} from "./validation/interfaces";
 /**
  * The idea of validation is, that you can build own flexible validation patterns,
  * which were stored as meta data on the object. The validation interface allows you
@@ -19,6 +22,7 @@ let key = 'model:property:validation';
 
 // store all validations that exists
 let createdValidators:Array<IValidationObject<any>> = [];
+
 
 /**
  *
@@ -41,6 +45,9 @@ export function createValidator<T>(validatorName:string, validatorFunction:IVali
     if (!validatorName || (typeof validatorName !== 'string' && <any>validatorName instanceof String === false)) {
         throw new Error('A validator must be named.');
     }
+    // to string 
+    validatorName = String(validatorName);
+    
     if (typeof validatorFunction !== 'function') {
         throw new Error('A validator need to have a validation function.');
     }
@@ -80,8 +87,75 @@ export function createValidator<T>(validatorName:string, validatorFunction:IVali
     }
 }
 
+/**
+ * Allowes to check against other properties
+ * @param validatorName
+ * @param validatorFunction
+ * @returns {function(string, string): function(any, string): undefined}
+ */
+export function createAgainstPropertyValidator<T>(validatorName:string, validatorFunction:IValidatorAgainstFunction<T>) {
+    if (!validatorName || (typeof validatorName !== 'string' && <any>validatorName instanceof String === false)) {
+        throw new Error('A validator must be named.');
+    }
+    // to string
+    validatorName = String(validatorName);
+
+    if (typeof validatorFunction !== 'function') {
+        throw new Error('A validator need to have a validation function.');
+    }
+    let checkMultipleNames = createdValidators.some((item:IValidationObject<T>) => {
+        return item.validatorName === validatorName;
+    });
+    if (checkMultipleNames) {
+        throw new Error('A validator should not create multiple times.');
+    }
+
+    /**
+     * This function allowes us to use the check against function as a normal validation function
+     * @param actValue
+     * @param baseValue
+     * @param target
+     * @param propertyName
+     */
+    let validatorConvertFunction:IValidatorFunction<T> = function(actValue:T, baseValue, target:any, propertyName: string):boolean {
+        let propertyA: string = propertyName;
+        let propertyB: string = baseValue;
+        let propA = actValue;
+        let propB = target[propertyB];
+        return validatorFunction.call(target, propA, propB, target, propertyA, propertyB);
+    };
+
+    let validationObject:IValidationObject<T> = {
+        validatorFunction: validatorConvertFunction,
+        validatorName: validatorName
+    };
+    createdValidators.push(validationObject);
+
+    return function (propertyB: string, errorNotice:string) {
+        let baseValue: T = <any>propertyB;
+        //
+        // This is s
+        //
+        return function (target, propertyName:string) {
+            let store:IValidationProperty<T> = {
+                baseValue: baseValue,
+                errorNotice: errorNotice,
+                propertyName: propertyName,
+                validatorFunction: validatorConvertFunction,
+                validatorName: validatorName
+            };
+            let metaDataArray: Array<IValidationProperty<T>> = Reflect.getMetadata(key, target);
+            if (!metaDataArray || !Array.isArray(metaDataArray)) {
+                metaDataArray = [];
+            }
+            metaDataArray.push(store);
+            Reflect.defineMetadata(key, metaDataArray, target);
+        }
+    }
+}
+
 function validateProperties(target, property?: string):boolean {
-    let hasProperty = arguments.length>1;
+    let hasProperty = arguments.length > 1;
     let metaDataArray: Array<IValidationProperty<any>> = Reflect.getMetadata(key, target);
     if (!metaDataArray || !Array.isArray(metaDataArray)) {
         return true;
@@ -89,9 +163,11 @@ function validateProperties(target, property?: string):boolean {
     return metaDataArray
         .filter((check: IValidationProperty<any>) => !hasProperty || property === check.propertyName)
         .every((check: IValidationProperty<any>) => {
-            return check.validatorFunction(target[check.propertyName], check.baseValue);
+            return check.validatorFunction.call(target, target[check.propertyName], 
+                check.baseValue, target, check.propertyName);
         });
 }
+
 
 function getErrorList(target, property?: string):Array<IValidationProperty<any>> {
     let hasProperty = arguments.length>1;
@@ -101,8 +177,11 @@ function getErrorList(target, property?: string):Array<IValidationProperty<any>>
     }
     return metaDataArray
         .filter((check: IValidationProperty<any>) => !hasProperty || property === check.propertyName)
-        .filter((check: IValidationProperty<any>) => !check.validatorFunction(target[check.propertyName], check.baseValue));
+        .filter((check: IValidationProperty<any>) =>
+            !check.validatorFunction.call(target, target[check.propertyName],
+                check.baseValue, target, check.propertyName));
 }
+
 
 function getValidationObjects(target, property?: string): Array<IValidationObject<any>> {
     let hasProperty = arguments.length>1;

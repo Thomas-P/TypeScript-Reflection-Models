@@ -1,15 +1,20 @@
 /**
  * Created by ThomasP on 01.04.2016.
  */
-
+/**
+ *
+ * @param prop
+ * @returns {boolean}
+ *      only true if a string is not a String object
+ */
 function assertString(prop):boolean {
-    return typeof prop === 'string' || prop instanceof String;
+    return typeof prop === 'string';
 }
 /**
  *
  */
 export interface IValidatorFunction<T> {
-    (actValue:T, baseValue?:T):boolean
+    (actValue:T, baseValue:T, target:any, propertyName: string):boolean
 }
 
 
@@ -19,6 +24,24 @@ export interface IValidatorFunction<T> {
  * @returns {boolean}
  */
 export function assertIValidatorFunction<T>(property:IValidatorFunction<T>):boolean {
+    return typeof property === 'function';
+}
+
+
+/**
+ *
+ */
+export interface IValidatorAgainstFunction<T> {
+    (propertyA:T, propertyB:T, target:any, propertyNameA: string, propertyNameB: string):boolean
+}
+
+
+/**
+ * Assertion function for IValidatorFunction
+ * @param property
+ * @returns {boolean}
+ */
+export function assertIValidatorAgainstFunction<T>(property:IValidatorAgainstFunction<T>):boolean {
     return typeof property === 'function';
 }
 
