@@ -201,6 +201,7 @@ describe('Model::Property::Validation', function() {
         let result:Array<IValidationObject<any>> = Validation.getAllValidationObjects();
         expect(result).toBeDefined();
         expect(Array.isArray(result)).toBe(true);
+        result = result.filter((resItem) => resItem.validatorName === 'lowerThen' || resItem.validatorName === 'higherThen');
         expect(result.length).toBe(2);
         result.forEach((resItem:IValidationObject<any>) => {
             // these one have no base Value or error notice

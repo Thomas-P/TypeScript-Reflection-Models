@@ -25,6 +25,7 @@ module.exports = function (config) {
             'test/**/*Spec.js'
         ],
 
+        clearContext: true,
 
         // list of files to exclude
         exclude: [],
