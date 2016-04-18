@@ -25,7 +25,7 @@ describe('Model::Property', function() {
 
     it('should have the right interface', function () {
 
-        let property = new Property();
+        let property = new Property({});
         expect(property).toBeDefined();
 
         expect(Property.getProperties).toBeDefined();

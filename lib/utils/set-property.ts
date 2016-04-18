@@ -35,7 +35,8 @@ export function getProperties(target, typeKey?: string): Array<string> {
         throw new Error('Cannot get information, if the target is not set.');
     }
     if (typeof target === 'function') {
-        return getProperties(target.prototype, typeKey);
+        let prototype = target.prototype || Object.getPrototypeOf(target);
+        return getProperties(prototype, typeKey);
     }
     if (!Reflect.hasMetadata(propertyKey, target)) {
         return [];

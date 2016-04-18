@@ -10,6 +10,7 @@ const typeKey: string = propertyKey + ':type';
 const defaultKey = propertyKey + ':default';
 const requiredKey: string= propertyKey + ':required';
 const readOnlyKey: string= propertyKey + ':readOnly';
+const enumKey: string= propertyKey+ ':enumValues';
 
 
 enum allowedTypes {
@@ -79,6 +80,17 @@ export function Type(type){
 
 
 /**
+ * set enum values for a property
+ * @param type
+ * @returns {function(Object, (string|symbol)=): void}
+ * @constructor
+ */
+export function Enum<T>(enumValues:Array<T>){
+    return metaData(enumKey, enumValues);
+}
+
+
+/**
  * set a default value for a model spec
  * @param value
  * @returns {function(any, string): void}
@@ -112,7 +124,11 @@ export var ReadOnly = metaData(readOnlyKey, true);
  * handle properties on a model.
  */
 export class Property {
-    /**
+
+    constructor(private target) {
+
+    }
+    /**karm
      * List of Types, that are allowed for properties as a string
      * @type {allowedTypes}
      */
@@ -137,7 +153,8 @@ export class Property {
             throw new Error('Cannot get information, if the target is not set.');
         }
         if (typeof target === 'function') {
-            return Property.getPropertyInformation(metaKey, target.prototype, propertyKey);
+            let prototype = target.prototype || Object.getPrototypeOf(target);
+            return Property.getPropertyInformation(metaKey, prototype, propertyKey);
         }
         return Reflect.getMetadata(metaKey, target, propertyKey);
     }
@@ -159,7 +176,8 @@ export class Property {
             throw new Error('Cannot get information, if the target is not set.');
         }
         if (typeof target === 'function') {
-            return Property.hasPropertyInformation(metaKey, target.prototype, propertyKey);
+            let prototype = target.prototype || Object.getPrototypeOf(target);
+            return Property.hasPropertyInformation(metaKey, prototype, propertyKey);
         }
         return Reflect.hasMetadata(metaKey, target, propertyKey);
     }
@@ -257,6 +275,46 @@ export class Property {
      */
     static getDefaultProperties(target): Array<string> {
         return Property.getProperties(target, defaultKey);
+    }
+
+
+    /**
+     * get the enum for a property on a specified target.
+     * it will return the type if it is set.
+     * @param target
+     *      target class or object
+     * @param propertyKey
+     *      name of the property, where the meta data is set
+     * @returns {any}
+     *      returns the type for the property
+     */
+    static getEnum(target, propertyKey: string) {
+        return Property.getPropertyInformation(enumKey, target, propertyKey);
+    }
+
+
+    /**
+     * The method hasType allows us to check if a model already has a
+     * enum value for the property.
+     * @param target
+     *      target class or object
+     * @param propertyKey
+     *      name of the property, where the meta data is set
+     * @returns {boolean}
+     *      true if the default value is set
+     */
+    static hasEnum(target, propertyKey: string): boolean {
+        return Property.hasPropertyInformation(enumKey, target, propertyKey);
+    }
+
+
+    /**
+     * get a list of properties where the default is set
+     * @param target
+     * @returns {Array<string>}
+     */
+    static getEnumProperties(target): Array<string> {
+        return Property.getProperties(target, enumKey);
     }
 
 
