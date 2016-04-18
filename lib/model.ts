@@ -9,6 +9,21 @@ const collectionKey: string = `${modelKey}:collection`;
 const namespaceKey: string =  `${modelKey}:namespace`;
 const routeKey: string =  `${modelKey}:route`;
 
+let usedCollections:Array<string> = [];
+
+
+/**
+ *
+ * @param target
+ * @returns {any|T}
+ */
+function getParentConstructor(target) {
+    let targetChain = getConstructorChain(target);
+    if (targetChain.length === 0) {
+        return;
+    }
+    return targetChain.pop();
+}
 
 /**
  * internal function which store the key and the
@@ -34,12 +49,17 @@ function metaData(metaKey: string, value) {
 export function Collection(collectionName: string): (target: any) => void {
 
     return function (target): void {
-        let targetChain = getConstructorChain(target);
-        if (targetChain.length === 0) {
-            return;
+        let newTarget= getParentConstructor(target);
+        if (Model.hasCollection(newTarget)) {
+            if (Model.getCollection(newTarget) === collectionName) {
+                return;
+            }
+            throw new Error(`Cannot reset a collection with another name.`);
         }
-        let newTarget= targetChain.pop();
-
+        if (usedCollections.indexOf(collectionName) !== -1) {
+            throw new Error(`Cannot set a collection to more than one class.`);
+        }
+        usedCollections.push(collectionName);
         Reflect.defineMetadata(collectionKey, collectionName, newTarget);
     }
 }
@@ -77,8 +97,6 @@ export class Model {
      *      defines the key under meta data should be found
      * @param target
      *      target is the class or an object of this, where meta data is represented
-     * @param propertyKey
-     *      the property key is the name of the property on the target object
      * @returns {any}
      *      the meta data for a property in combination with the meta key
      */
@@ -86,9 +104,8 @@ export class Model {
         if (!target) {
             throw new Error('Cannot get information, if the target is not set.');
         }
-        if (typeof target === 'function') {
-            let prototype = target.prototype || Object.getPrototypeOf(target);
-            return Model.getModelInformation(metaKey, prototype);
+        if (typeof target !== 'function') {
+            return Model.getModelInformation(metaKey, target.constructor);
         }
         return Reflect.getMetadata(metaKey, target);
     }
@@ -104,11 +121,10 @@ export class Model {
         if (!target) {
             throw new Error('Cannot get information, if the target is not set.');
         }
-        if (typeof target === 'function') {
-            let prototype = target.prototype || Object.getPrototypeOf(target);
-            return Model.getModelInformation(metaKey, prototype);
+        if (typeof target !== 'function') {
+            return Model.hasModelInformation(metaKey, target.constructor);
         }
-        return Reflect.getMetadata(metaKey, target);
+        return Reflect.hasMetadata(metaKey, target);
     }
 
 
@@ -117,8 +133,8 @@ export class Model {
      * @param target
      */
     static getCollection(target): string {
-
-        return;
+        let newTarget= getParentConstructor(target);
+        return Model.getModelInformation(collectionKey, newTarget);
     }
 
 
@@ -127,8 +143,8 @@ export class Model {
      * @param target
      */
     static hasCollection(target): boolean {
-        
-        return;
+        let newTarget= getParentConstructor(target);
+        return Model.hasModelInformation(collectionKey, newTarget);
     }
 
 

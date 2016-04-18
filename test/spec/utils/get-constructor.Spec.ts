@@ -59,7 +59,7 @@ describe('utils::getConstructor', function() {
     });
 
     it('should return [S, T, U], when we get the chain for S', function () {
-        let uArray = getConstructorChain(T);
+        let uArray = getConstructorChain(S);
         expect(Array.isArray(uArray)).toBe(true, 'return [S, T, U] for class S {}');
         expect((uArray.length)).toBe(3, 'the [S, T, U].length for class S {} must be 3');
         expect(uArray.shift()).toBe(S);

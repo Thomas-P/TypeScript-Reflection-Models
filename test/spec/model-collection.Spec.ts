@@ -11,11 +11,11 @@ describe('Model::Collection', function() {
        }
 
         expect(Model.hasCollection(TestModel)).toBe(false, 'TestModel must not have a collection');
-        expect(Model.getCollection(TestModel)).toBe(null, 'The collection ' +
+        expect(Model.getCollection(TestModel)).toBe(undefined, 'The collection ' +
             'of the TestModel must be unnamed.');
 
         expect(Model.hasCollection(new TestModel)).toBe(false, 'TestModel must not have a collection');
-        expect(Model.getCollection(new TestModel)).toBe(null, 'The collection ' +
+        expect(Model.getCollection(new TestModel)).toBe(undefined, 'The collection ' +
             'of the TestModel must be unnamed.');
 
 
@@ -49,7 +49,7 @@ describe('Model::Collection', function() {
 
         }
 
-        expect(() =>{
+        expect(function() {
             @Collection(collectionString)
             class TestModel2 {
 
